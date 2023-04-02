@@ -4,25 +4,25 @@
 #include "../include/vols.h"
 
 
-void afficherVols() {
+void affichervols() {
+    vol vol1;
     FILE *fichier = fopen("../BD/vols.txt", "r");
+
     if (fichier == NULL) {
         printf("Erreur lors de l'ouverture du fichier.\n");
         return;
     }
-    
-    Vol vol;
-    fscanf(fichier, "%*s %*s %*s %*s"); // Ignorer la première ligne contenant les noms de colonnes
-    
-    while (fscanf(fichier, "%d %s %d %f", &vol.reference, vol.destination, &vol.nombrePlaces, &vol.prixPlace) != EOF) {
-        printf("Référence : %d\nDestination : %s\nNombre de places : %d\nPrix par place : %.2f\n\n", vol.reference, vol.destination, vol.nombrePlaces, vol.prixPlace);
+    //fscanf(fichier, "%*s %*s %*s %*s"); // Ignorer la première ligne contenant les noms de colonnes
+    printf("Référence \tDestination \tNombre de places \tPrix par place\n");
+    while (fscanf(fichier, "%d %s %d %f", &vol1.reference, vol1.destination, &vol1.nombre_places, &vol1.prix_place) != EOF) {
+        printf("%d\t\t%s\t\t%d\t\t%.2f\n", vol1.reference, vol1.destination, vol1.nombre_places, vol1.prix_place);
     }
     
     fclose(fichier);
 }
 int main()
 {
-   afficherVols(); 
+   affichervols(); 
 
    return 0; 
 }
