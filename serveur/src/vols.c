@@ -53,11 +53,15 @@ void modifier_nbplaces(int reference, int nouveau_nombre_places) {
     // réécriture des vols dans le fichier
     rewind(fichier);
     for (i = 0; i < nb_vols; i++) {
-        fprintf(fichier, "%d %s %d %.2f\n", vols[i].reference, vols[i].destination, vols[i].nombre_places, vols[i].prix_place);
+        fprintf(fichier, "%d %s %d %.2f", vols[i].reference, vols[i].destination, vols[i].nombre_places, vols[i].prix_place);
+        if(i != nb_vols-1) {
+            fprintf(fichier, "\n");
+        }
     }
 
     fclose(fichier);
 }
+
 
 int get_nb_places(int ref_vol) {
     FILE* fp;
@@ -83,13 +87,4 @@ int get_nb_places(int ref_vol) {
     }
 
     return nb_places;
-}
-
-int main()
-{
-   affichervols(); 
-   modifier_nbplaces(3000,20);
-   printf("Vol %d : %d places disponibles\n", 3000 ,get_nb_places(3000));
-
-   return 0; 
 }

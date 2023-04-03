@@ -12,5 +12,6 @@ typedef struct {
 // Fonction pour récupérer tous les vols du fichier texte "vols.txt" et les afficher à la console
 void afficher_vols();
 void modifier_nbplaces(int,int);
+int get_nb_places(int);
 
 #endif /* VOL_H */

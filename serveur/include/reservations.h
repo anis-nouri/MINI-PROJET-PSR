@@ -12,5 +12,4 @@ struct reservation {
 void afficher_histo(char* filename);
 int rechercher_reservation(char* filename, int ref_vol, int agence);
 int reserver(char* filename, int ref_vol, int agence, int nb_places);
-
 #endif
