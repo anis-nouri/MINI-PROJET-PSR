@@ -6,7 +6,7 @@
 
 void affichervols() {
     vol vol1;
-    FILE *fichier = fopen("../BD/vols.txt", "r");
+    FILE *fichier = fopen("./BD/vols.txt", "r");
 
     if (fichier == NULL) {
         printf("Erreur lors de l'ouverture du fichier.\n");
@@ -58,11 +58,37 @@ void modifier_nbplaces(int reference, int nouveau_nombre_places) {
     fclose(fichier);
 }
 
+int get_nb_places(int ref_vol) {
+    FILE* fp;
+    vol v;
+    int nb_places = -1;
+
+    fp = fopen("./BD/vols.txt", "r");
+    if (fp == NULL) {
+        printf("Erreur lors de l'ouverture du fichier vols.txt\n");
+        return -1;
+    }
+
+    while (fscanf(fp, "%d %s %d %f", &v.reference, v.destination, &v.nombre_places, &v.prix_place) != EOF) {
+        if (v.reference == ref_vol) {
+            nb_places = v.nombre_places;
+            break;
+        }
+    }
+    fclose(fp);
+
+    if (nb_places == -1) {
+        printf("Le vol avec la référence %d n'a pas été trouvé dans le fichier vols.txt\n", ref_vol);
+    }
+
+    return nb_places;
+}
 
 int main()
 {
-   //affichervols(); 
+   affichervols(); 
    modifier_nbplaces(3000,20);
+   printf("Vol %d : %d places disponibles\n", 3000 ,get_nb_places(3000));
 
    return 0; 
 }
