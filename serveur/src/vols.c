@@ -22,7 +22,7 @@ void affichervols() {
     }
     
     fclose(fichier);
-}
+};
 
 void modifier_nbplaces(int reference, int nouveau_nombre_places) {
     vol vols[MAX_VOLS];

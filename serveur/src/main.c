@@ -5,12 +5,16 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+#include "../include/reservations.h"
+
+
 #define PORT 8888
 
 int main() {
     int socket_desc, client_sock, c, read_size;
     struct sockaddr_in server, client;
     char client_message[2000];
+    char command[20];
 
     // Créer un socket
     socket_desc = socket(AF_INET, SOCK_STREAM, 0);
@@ -42,11 +46,26 @@ int main() {
 
         // Recevoir des données du client
         while ((read_size = recv(client_sock, client_message, 2000, 0)) > 0) {
-            // Afficher les données reçues
-            printf("Message du client : %s\n", client_message);
+           // Receive data from the client
+            memset(client_message, 0, sizeof(client_message)); // clear the buffer
+            if ((read_size = recv(client_sock, client_message, sizeof(client_message), 0)) > 0) {
+                // Process the received message
+                printf("Message du client : %s\n", client_message);
+                sscanf(client_message, "%[^:]", command);
+                 if (strcmp(command, "REF_AGE") == 0) {
+                    printf("REF_AGE command\n");
+                } else if (strcmp(command, "LISTE_VOL") == 0) {
+                    printf("LISTE_VOL command\n");
+                } else if (strcmp(command, "HIST_TR") == 0) {
+                    printf("HIST_TR command\n");
+                    envoyer_histo(client_sock);
+                } else {
+                    printf("Invalid command\n");
+                }
+                }
 
             // Envoyer une réponse au client
-            write(client_sock, "Message reçu", strlen("Message reçu"));
+            //write(client_sock, "Message reçu", strlen("Message reçu"));
         }
 
         // Fermer la connexion avec le client
