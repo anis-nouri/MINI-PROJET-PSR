@@ -4,10 +4,12 @@
 
 #include "../include/vols.h"
 #define MAX_VOLS 100
+#define filename "./BD/vols.txt"
+
 
 void affichervols() {
     vol vol1;
-    FILE *fichier = fopen("./BD/vols.txt", "r");
+    FILE *fichier = fopen(filename, "r");
 
     if (fichier == NULL) {
         printf("Erreur lors de l'ouverture du fichier.\n");
@@ -24,7 +26,7 @@ void affichervols() {
 
 void modifier_nbplaces(int reference, int nouveau_nombre_places) {
     vol vols[MAX_VOLS];
-    FILE *fichier = fopen("./BD/vols.txt", "r+");
+    FILE *fichier = fopen(filename, "r+");
     if (fichier == NULL) {
         perror("Erreur lors de l'ouverture du fichier");
         exit(EXIT_FAILURE);
@@ -68,7 +70,7 @@ int get_nb_places(int ref_vol) {
     vol v;
     int nb_places = -1;
 
-    fp = fopen("./BD/vols.txt", "r");
+    fp = fopen(filename, "r");
     if (fp == NULL) {
         printf("Erreur lors de l'ouverture du fichier vols.txt\n");
         return -1;
@@ -88,3 +90,30 @@ int get_nb_places(int ref_vol) {
 
     return nb_places;
 }
+
+float get_prix_place(int ref_vol) {
+    FILE* fp;
+    vol v;
+    float prix_place = -1;
+
+    fp = fopen(filename, "r");
+    if (fp == NULL) {
+        printf("Erreur lors de l'ouverture du fichier vols.txt\n");
+        return -1;
+    }
+
+    while (fscanf(fp, "%d %s %d %f", &v.reference, v.destination, &v.nombre_places, &v.prix_place) != EOF) {
+        if (v.reference == ref_vol) {
+            prix_place = v.prix_place;
+            break;
+        }
+    }
+    fclose(fp);
+
+    if (prix_place == -1) {
+        printf("Le vol avec la référence %d n'a pas été trouvé dans le fichier vols.txt\n", ref_vol);
+    }
+
+    return prix_place;
+}
+

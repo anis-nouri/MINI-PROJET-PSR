@@ -13,5 +13,8 @@ typedef struct {
 void afficher_vols();
 void modifier_nbplaces(int,int);
 int get_nb_places(int);
+float get_prix_place(int);
+
+
 
 #endif /* VOL_H */

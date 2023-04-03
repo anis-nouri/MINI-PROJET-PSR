@@ -9,7 +9,7 @@ struct reservation {
     char resultat[20];
 };
 
-void afficher_histo(char* filename);
-int rechercher_reservation(char* filename, int ref_vol, int agence);
-int reserver(char* filename, int ref_vol, int agence, int nb_places);
+void afficher_histo();
+int rechercher_reservation(int ref_vol, int agence);
+void ajouter_transaction(int ref_vol, int agence, char* transaction, int valeur);
 #endif

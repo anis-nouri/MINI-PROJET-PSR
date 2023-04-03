@@ -1,10 +1,13 @@
 #include "../include/reservations.h"
+#include "../include/vols.h"
+#include "../include/facture.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../include/vols.h"
 
-void afficher_histo(char* filename) {
+#define filename "./BD/histo.txt"
+
+void afficher_histo() {
     FILE* fp;
     struct reservation res;
 
@@ -23,7 +26,7 @@ void afficher_histo(char* filename) {
 }
 
 
-void consulter_historique_agence(char* filename, int agence) {
+void consulter_historique_agence(int agence) {
     FILE* fp;
     struct reservation res;
 
@@ -43,10 +46,13 @@ void consulter_historique_agence(char* filename, int agence) {
     fclose(fp);
 }
 
-void ajouter_transaction(char* filename, int ref_vol, int agence, char* transaction, int valeur) {
+void ajouter_transaction(int ref_vol, int agence, char* transaction, int valeur) {
     FILE* fp;
     struct reservation res;
     int nb_places = get_nb_places(ref_vol);
+    float prix_place = get_prix_place(ref_vol);
+    float prix_facture = afficher_facture(agence);
+    float nouveau_prix_facture=0;
     char resultat[20] = "";
     
     if(valeur > nb_places && strcmp(transaction, "Demande") == 0) {
@@ -55,10 +61,16 @@ void ajouter_transaction(char* filename, int ref_vol, int agence, char* transact
     else if(strcmp(transaction, "Annulation") == 0 || (valeur <= nb_places && strcmp(transaction, "Demande") == 0)) {
         strcpy(resultat, "succes");
         if(strcmp(transaction, "Annulation")==0){
+            nouveau_prix_facture=prix_facture-(valeur*prix_place)+0.1*(valeur*prix_place);
             modifier_nbplaces(ref_vol,nb_places+valeur);
+            ajouterOuModifierFacture(agence, nouveau_prix_facture);
         }
         else if(strcmp(transaction, "Demande")==0){
+            nouveau_prix_facture=prix_facture+(valeur*prix_place);
             modifier_nbplaces(ref_vol,nb_places-valeur);
+            ajouterOuModifierFacture(agence, nouveau_prix_facture);
+
+
         }
     }
     
@@ -80,22 +92,20 @@ void ajouter_transaction(char* filename, int ref_vol, int agence, char* transact
 }
 
 int main(){
-    // Affichage de l'historique complet
-    afficher_histo("./BD/histo.txt");
-    consulter_historique_agence("./BD/histo.txt", 2);
-    printf("%d",get_nb_places(3000));
+    ajouter_transaction(2000, 2, "Demande", 10);
+    ajouter_transaction(1000, 1, "Demande", 25);
+    ajouter_transaction(2000, 2, "Demande", 10);
+    ajouter_transaction(1000, 2, "Demande", 10);
+    ajouter_transaction(2000, 1, "Demande", 5);
+    ajouter_transaction(3000, 2, "Demande", 45);
+    ajouter_transaction(1000, 2, "Annulation", 5);
+    ajouter_transaction(4000, 1, "Demande", 15);
     
-    /*
-    ajouter_transaction("./BD/histo.txt", 2000, 2, "Demande", 10);
-    ajouter_transaction("./BD/histo.txt", 1000, 1, "Demande", 25);
-    ajouter_transaction("./BD/histo.txt", 2000, 2, "Demande", 10);
-    ajouter_transaction("./BD/histo.txt", 1000, 2, "Demande", 10);
-    ajouter_transaction("./BD/histo.txt", 2000, 1, "Demande", 5);
-    ajouter_transaction("./BD/histo.txt", 3000, 2, "Demande", 45);
-    ajouter_transaction("./BD/histo.txt", 1000, 2, "Annulation", 5);
-    ajouter_transaction("./BD/histo.txt", 4000, 1, "Demande", 15);
-    */
+    // Affichage de l'historique complet
+    afficher_histo();
 
-
+    // Affichage de l'historique de l'agence 2
+    consulter_historique_agence(2);
     return 0;
 }
+
