@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+
 
 #include "../include/vols.h"
 #define MAX_VOLS 100
@@ -15,7 +17,6 @@ void affichervols() {
         printf("Erreur lors de l'ouverture du fichier.\n");
         return;
     }
-    //fscanf(fichier, "%*s %*s %*s %*s"); // Ignorer la première ligne contenant les noms de colonnes
     printf("Référence \tDestination \tNombre de places \tPrix par place\n");
     while (fscanf(fichier, "%d %s %d %f", &vol1.reference, vol1.destination, &vol1.nombre_places, &vol1.prix_place) != EOF) {
         printf("%d\t\t%s\t\t%d\t\t%.2f\n", vol1.reference, vol1.destination, vol1.nombre_places, vol1.prix_place);
@@ -23,6 +24,35 @@ void affichervols() {
     
     fclose(fichier);
 }
+
+void envoyer_info_vol(int client_sock, int reference) {
+    vol vol1;
+    FILE *fichier = fopen(filename, "r");
+
+    if (fichier == NULL) {
+        printf("Erreur lors de l'ouverture du fichier.\n");
+        return;
+    }
+
+    int found = 0; // variable pour savoir si la référence du vol a été trouvée
+    while (fscanf(fichier, "%d %s %d %f", &vol1.reference, vol1.destination, &vol1.nombre_places, &vol1.prix_place) != EOF) {
+        if (vol1.reference == reference) {
+            char message[200];
+            snprintf(message, sizeof(message), "\nInformations du vol: %d \n----------------\nDestination: %s \nNombre de places disponibles: %d \nPrix par place: %.2f \n", vol1.reference, vol1.destination, vol1.nombre_places, vol1.prix_place);        
+            write(client_sock, message, strlen(message));
+            found = 1;
+            break;
+        }
+    }
+    
+    fclose(fichier);
+    if (!found) {
+        char message[100];
+        snprintf(message, sizeof(message), "\nLa référence de vol {%d} n'existe pas !! \n", reference);
+        write(client_sock, message, strlen(message));
+    }
+};
+
 
 void modifier_nbplaces(int reference, int nouveau_nombre_places) {
     vol vols[MAX_VOLS];

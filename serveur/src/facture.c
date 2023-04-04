@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <unistd.h>
 
 
 #define filename "./BD/facture.txt"
@@ -13,7 +14,7 @@ float afficher_facture(int ref_agence) {
     fp = fopen(filename, "r");
     facture f;
     int trouve = 0;
-    while (fscanf(fp, "%d %d", &f.ref_agence, &f.somme_a_payer) == 2) {
+    while (fscanf(fp, "%d %f", &f.ref_agence, &f.somme_a_payer) == 2) {
         if (f.ref_agence == ref_agence) {
             trouve = 1;
             return f.somme_a_payer;
@@ -24,6 +25,31 @@ float afficher_facture(int ref_agence) {
     }
     rewind(fp);
 }
+
+void envoyer_facture(int client_sock, int ref_agence) {
+    FILE* fp;
+    fp = fopen(filename, "r");
+    if (fp == NULL) {
+        perror("Unable to open file");
+        return;
+    }
+    facture f;
+    int trouve = 0;
+    while (fscanf(fp, "%d %f", &f.ref_agence, &f.somme_a_payer) != EOF) {
+        if (f.ref_agence == ref_agence) {
+            trouve = 1;
+            char facture_str[100];
+            sprintf(facture_str, "\nFacture de l'agence %d : %.2f euros\n", ref_agence, f.somme_a_payer);
+            ssize_t bytes_written = write(client_sock, facture_str, strlen(facture_str));
+        }
+    }
+    if (!trouve) {
+        write(client_sock, "\nFacture non trouvée !!\n", strlen("\nFacture non trouvée !!\n"));
+    }
+    rewind(fp);
+}
+
+
 
 void ajouterOuModifierFacture(int referenceAgence, float nouvelleSomme)
 {
@@ -68,7 +94,7 @@ void ajouterOuModifierFacture(int referenceAgence, float nouvelleSomme)
     fclose(tempFile);
 
     // Renommer le fichier temporaire pour remplacer l'original
+
     remove(filename);
     rename("temp.txt", filename);
 }
-

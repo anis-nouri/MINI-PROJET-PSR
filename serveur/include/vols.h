@@ -14,6 +14,8 @@ void afficher_vols();
 void modifier_nbplaces(int,int);
 int get_nb_places(int);
 float get_prix_place(int);
+void envoyer_info_vol(int client_sock, int reference);
+
 
 
 

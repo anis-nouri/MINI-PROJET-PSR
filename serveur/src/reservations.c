@@ -4,8 +4,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #define filename "./BD/histo.txt"
+
+void envoyer_histo(int client_sock) {
+
+    FILE* fp;
+    struct reservation res;
+    char buffer[2000];
+
+    fp = fopen(filename, "r");
+    if (fp == NULL) {
+        printf("Erreur lors de l'ouverture du fichier %s\n", filename);
+        return;
+    }
+
+    sprintf(buffer, "Référence vol\tAgence\tTransaction\tValeur\tRésultat\n");
+    write(client_sock, buffer, strlen(buffer));
+
+    while (fscanf(fp, "%d %d %s %d %s", &res.ref_vol, &res.agence, res.transaction, &res.valeur, res.resultat) != EOF) {
+        sprintf(buffer, "%d\t\t%d\t%s\t\t%d\t%s\n", res.ref_vol, res.agence, res.transaction, res.valeur, res.resultat);
+        write(client_sock, buffer, strlen(buffer));
+    }
+    
+
+    fclose(fp);
+}
+
+
 
 void afficher_histo() {
     FILE* fp;
@@ -91,6 +118,7 @@ void ajouter_transaction(int ref_vol, int agence, char* transaction, int valeur)
     fclose(fp);
 }
 
+/*
 int main(){
     ajouter_transaction(2000, 2, "Demande", 10);
     ajouter_transaction(1000, 1, "Demande", 25);
@@ -107,5 +135,5 @@ int main(){
     // Affichage de l'historique de l'agence 2
     consulter_historique_agence(2);
     return 0;
-}
+}*/
 

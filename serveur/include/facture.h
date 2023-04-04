@@ -6,10 +6,12 @@
 
 typedef struct {
     int ref_agence;      // référence de l'agence
-    int somme_a_payer;   // somme à payer par l'agence
+    float somme_a_payer;   // somme à payer par l'agence
 } facture;
 
 float afficher_facture(int);
 void ajouterOuModifierFacture(int, float);
+void envoyer_facture(int client_sock, int ref_agence);
+
 
 #endif
