@@ -73,7 +73,7 @@ void consulter_historique_agence(int agence) {
     fclose(fp);
 }
 
-void ajouter_transaction(int ref_vol, int agence, char* transaction, int valeur) {
+void ajouter_transaction(int client_sock, int ref_vol, int agence, char* transaction, int valeur) {
     FILE* fp;
     struct reservation res;
     int nb_places = get_nb_places(ref_vol);
@@ -97,7 +97,6 @@ void ajouter_transaction(int ref_vol, int agence, char* transaction, int valeur)
             modifier_nbplaces(ref_vol,nb_places-valeur);
             ajouterOuModifierFacture(agence, nouveau_prix_facture);
 
-
         }
     }
     
@@ -114,6 +113,15 @@ void ajouter_transaction(int ref_vol, int agence, char* transaction, int valeur)
     strcpy(res.resultat, resultat);
 
     fprintf(fp, "%d %d %s %d %s\n", res.ref_vol, res.agence, res.transaction, res.valeur, res.resultat);
+    
+        char message[100];
+    if (strcmp(resultat, "succes") == 0) {
+        snprintf(message, sizeof(message), "Transaction effectuée avec succès !\n");
+    } else {
+        snprintf(message, sizeof(message), "Transaction impossible !\n");
+    }
+
+    write(client_sock, message, strlen(message));
 
     fclose(fp);
 }

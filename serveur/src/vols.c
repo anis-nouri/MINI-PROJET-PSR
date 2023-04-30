@@ -54,6 +54,31 @@ void envoyer_info_vol(int client_sock, int reference) {
 };
 
 
+void envoyer_liste_vols(int client_sock) {
+    FILE *fichier = fopen(filename, "r");
+    if (fichier == NULL) {
+        printf("Erreur lors de l'ouverture du fichier %s\n", filename);
+        return;
+    }
+    
+    char message[500];
+    int count = 1;
+    snprintf(message, sizeof(message), "\nListe des vols: \n---------------\n");
+    while (!feof(fichier)) {
+        vol vol1;
+        if (fscanf(fichier, "%d %s %d %f", &vol1.reference, vol1.destination, &vol1.nombre_places, &vol1.prix_place) != 4) {
+            break;
+        }
+        snprintf(message + strlen(message), sizeof(message) - strlen(message), "[%d] Vol %d: %s\n", count, vol1.reference, vol1.destination);
+        count++;
+    }
+    fclose(fichier);
+
+    write(client_sock, message, strlen(message));
+}
+
+
+
 void modifier_nbplaces(int reference, int nouveau_nombre_places) {
     vol vols[MAX_VOLS];
     FILE *fichier = fopen(filename, "r+");

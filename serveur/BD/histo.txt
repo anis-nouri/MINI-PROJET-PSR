@@ -6,3 +6,47 @@
 3000 2 Demande 45 impossible
 1000 2 Annulation 5 succes
 4000 1 Demande 15 succes
+1000 1 Demande 5 succes
+4000 1 Demande 1 impossible
+32593 -2105949712  32767 
+32593 -2105949712  32767 
+32593 -2105949712  32767 
+32593 -2105949712  32767 
+1000 1 Demande 0 succes
+1000 1 Demande 0 succes
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1000 1 Demande 1 succes
+1000 1 Demande 1 succes
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1000 1 Demande 1 succes
+1000 1 Demande 1 succes
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+32740 2041550576  32764 
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible
+1 1 Demande 1 impossible

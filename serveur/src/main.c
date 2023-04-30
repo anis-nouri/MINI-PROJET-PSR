@@ -16,7 +16,10 @@ int main() {
     struct sockaddr_in server, client;
     char client_message[2000];
     char command[20];
+    char transaction_type[20];
     int arg_int;
+    int ref_vol, ref_agence, transaction_value;
+
 
     // Créer un socket
     socket_desc = socket(AF_INET, SOCK_STREAM, 0);
@@ -48,7 +51,13 @@ int main() {
 
         // Recevoir des données du client
         while ((read_size = recv(client_sock, client_message, sizeof(client_message), 0)) > 0) {
-        
+            sscanf(client_message, "%[^:]", command);
+            if(strcmp(command,"TRANSACTION")==0){
+            // Extraire la commande et les arguments
+            sscanf(client_message, "%[^:]:%d:%d:%[^:]:%d", command, &ref_vol, &ref_agence, transaction_type, &transaction_value);
+
+            }
+            else{
             char* colon_pos = strchr(client_message, ':');
             if (colon_pos != NULL) {
                 // Extract the string after ':'
@@ -57,9 +66,8 @@ int main() {
                 // Convert the argument to an integer
                 arg_int = atoi(arg);
             }
+            }
 
-            
-            sscanf(client_message, "%[^:]", command);
             if (strcmp(command, "REF_AGE") == 0) {
                 printf("**CONSULTER_FACTURE_AGE: [ref.age=%d]**\n",arg_int);
                 afficher_facture(arg_int);
@@ -71,11 +79,18 @@ int main() {
 
             } else if (strcmp(command, "HIST_TR") == 0) {
                 printf("**CONSULTER_HISTO_TRANSACTIONS\n");
-
                 envoyer_histo(client_sock);
-            } else {
+
+            }else if (strcmp(command, "TRANSACTION") == 0) {
+                printf("**L'agence %d a effectué une transaction de type %s**\n", ref_agence, transaction_type);
+                ajouter_transaction(client_sock,ref_vol,ref_agence, transaction_type,transaction_value);
+            }
+            else if (strcmp(command, "ALL_VOL") == 0) {
+                envoyer_liste_vols(client_sock);
+            }else {
                 printf("Invalid command\n");
             }
+            
             // Clear the buffer for the next message
             memset(client_message, 0, sizeof(client_message));
         }
