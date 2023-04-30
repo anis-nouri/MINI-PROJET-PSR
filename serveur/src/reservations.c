@@ -6,7 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#define filename "./BD/histo.txt"
+#define filename "/workspaces/MINI-PROJET-PSR/serveur/BD/histo.txt"
 
 void envoyer_histo(int client_sock) {
 

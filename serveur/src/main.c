@@ -55,10 +55,10 @@ int main() {
             if(strcmp(command,"TRANSACTION")==0){
             // Extraire la commande et les arguments
             sscanf(client_message, "%[^:]:%d:%d:%[^:]:%d", command, &ref_vol, &ref_agence, transaction_type, &transaction_value);
-
             }
             else{
             char* colon_pos = strchr(client_message, ':');
+
             if (colon_pos != NULL) {
                 // Extract the string after ':'
                 char* arg = colon_pos + 1;
@@ -74,7 +74,6 @@ int main() {
                 envoyer_facture(client_sock,arg_int);
 
             } else if (strcmp(command, "LISTE_VOL") == 0) {
-                printf("**CONSULTER_INFO_VOL: [ref.vol=%d]**\n",arg_int);
                 envoyer_info_vol(client_sock,arg_int);
 
             } else if (strcmp(command, "HIST_TR") == 0) {
@@ -106,3 +105,6 @@ int main() {
 
     return 0;
 }
+//NB: gcc main.c reservations.c facture.c vols.c -o main (on doit inclure les autres sources de fichiers reservations et tout
+// dans la commande de compilation)
+
