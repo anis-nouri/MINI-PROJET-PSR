@@ -49,7 +49,7 @@ int main() {
         // Recevoir des données du client
         while ((read_size = recv(client_sock, client_message, sizeof(client_message), 0)) > 0) {
         
-            char* colon_pos = strchr(client_message, ':');
+            char* colon_pos = strchr(client_message, ':'); // pointe sur la première occurence du caractère ':'
             if (colon_pos != NULL) {
                 // Extract the string after ':'
                 char* arg = colon_pos + 1;
@@ -59,19 +59,17 @@ int main() {
             }
 
             
-            sscanf(client_message, "%[^:]", command);
+            sscanf(client_message, "%[^:]", command);// copie la partie avant":" du client_message dans command
             if (strcmp(command, "REF_AGE") == 0) {
                 printf("**CONSULTER_FACTURE_AGE: [ref.age=%d]**\n",arg_int);
                 afficher_facture(arg_int);
                 envoyer_facture(client_sock,arg_int);
 
             } else if (strcmp(command, "LISTE_VOL") == 0) {
-                printf("**CONSULTER_INFO_VOL: [ref.vol=%d]**\n",arg_int);
                 envoyer_info_vol(client_sock,arg_int);
 
             } else if (strcmp(command, "HIST_TR") == 0) {
                 printf("**CONSULTER_HISTO_TRANSACTIONS\n");
-
                 envoyer_histo(client_sock);
             } else {
                 printf("Invalid command\n");
@@ -91,3 +89,6 @@ int main() {
 
     return 0;
 }
+//NB: gcc main.c reservations.c facture.c vols.c -o main (on doit inclure les autres sources de fichiers reservations et tout
+// dans la commande de compilation)
+

@@ -62,7 +62,8 @@ int main() {
                 scanf("%s", message);
                 strncpy(request,"LISTE_VOL:",sizeof(request));
                 strcat(request,message);  
-                strcat(request, "\r");     
+                strcat(request, "\r");
+                  printf("\n %s \n",request);     
 
                 // Envoyer la référence au serveur
                 if (send(sock, request, strlen(request), 0) < 0) {

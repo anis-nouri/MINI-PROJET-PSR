@@ -2,11 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-
 #include "../include/vols.h"
 #define MAX_VOLS 100
-#define filename "./BD/vols.txt"
+#define filename "/workspaces/MINI-PROJET-PSR/serveur/BD/vols.txt"
 
 
 void affichervols() {
@@ -26,6 +24,7 @@ void affichervols() {
 }
 
 void envoyer_info_vol(int client_sock, int reference) {
+    
     vol vol1;
     FILE *fichier = fopen(filename, "r");
 

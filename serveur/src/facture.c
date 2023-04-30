@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 
-#define filename "./BD/facture.txt"
+#define filename "/workspaces/MINI-PROJET-PSR/serveur//BD/facture.txt"
 
 float afficher_facture(int ref_agence) {
     FILE* fp;
