@@ -6,33 +6,39 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-
 #define filename "/workspaces/MINI-PROJET-PSR/serveur//BD/facture.txt"
 
-float afficher_facture(int ref_agence) {
-    FILE* fp;
+float afficher_facture(int ref_agence)
+{
+    FILE *fp;
     fp = fopen(filename, "r");
     facture f;
     int trouve = 0;
-    while (fscanf(fp, "%d %f", &f.ref_agence, &f.somme_a_payer) == 2) {
-        if (f.ref_agence == ref_agence) {
+    while (fscanf(fp, "%d %f", &f.ref_agence, &f.somme_a_payer) == 2)
+    {
+        if (f.ref_agence == ref_agence)
+        {
             trouve = 1;
             return f.somme_a_payer;
         }
     }
-    if (!trouve) {
+    if (!trouve)
+    {
         return 0;
     }
     rewind(fp);
 }
 
-void envoyer_facture2(int client_socket, int ref_agence) {
-    FILE* fp;
+void envoyer_facture2(int client_socket, int ref_agence)
+{
+    FILE *fp;
     fp = fopen(filename, "r");
     facture f;
     int trouve = 0;
-    while (fscanf(fp, "%d %f", &f.ref_agence, &f.somme_a_payer) == 2) {
-        if (f.ref_agence == ref_agence) {
+    while (fscanf(fp, "%d %f", &f.ref_agence, &f.somme_a_payer) == 2)
+    {
+        if (f.ref_agence == ref_agence)
+        {
             trouve = 1;
             char invoice_str[50];
             sprintf(invoice_str, "%.2f", f.somme_a_payer);
@@ -40,50 +46,56 @@ void envoyer_facture2(int client_socket, int ref_agence) {
             break;
         }
     }
-    if (!trouve) {
+    if (!trouve)
+    {
         char error_msg[] = "ERREUR: Facture introuvable";
         write(client_socket, error_msg, strlen(error_msg));
     }
     rewind(fp);
 }
 
-void envoyer_facture1(int client_sock, int ref_agence) {
-    FILE* fp;
+void envoyer_facture1(int client_sock, int ref_agence)
+{
+    FILE *fp;
     fp = fopen(filename, "r");
-    if (fp == NULL) {
+    if (fp == NULL)
+    {
         perror("Unable to open file");
         return;
     }
     facture f;
     int trouve = 0;
-    while (fscanf(fp, "%d %f", &f.ref_agence, &f.somme_a_payer) != EOF) {
-        if (f.ref_agence == ref_agence) {
+    while (fscanf(fp, "%d %f", &f.ref_agence, &f.somme_a_payer) != EOF)
+    {
+        if (f.ref_agence == ref_agence)
+        {
             trouve = 1;
             char facture_str[100];
             sprintf(facture_str, "\nFacture de l'agence %d : %.2f euros\n", ref_agence, f.somme_a_payer);
             ssize_t bytes_written = write(client_sock, facture_str, strlen(facture_str));
         }
     }
-    if (!trouve) {
+    if (!trouve)
+    {
         write(client_sock, "\nFacture non trouvée !!\n", strlen("\nFacture non trouvée !!\n"));
     }
     rewind(fp);
 }
 
-
-
 void ajouterOuModifierFacture(int referenceAgence, float nouvelleSomme)
 {
     // Ouvrir le fichier en mode lecture
-    FILE* file = fopen(filename, "r");
-    if (file == NULL) {
+    FILE *file = fopen(filename, "r");
+    if (file == NULL)
+    {
         printf("Erreur: Impossible d'ouvrir le fichier %s\n", filename);
         return;
     }
 
     // Ouvrir un fichier temporaire en mode écriture
-    FILE* tempFile = fopen("temp.txt", "w");
-    if (tempFile == NULL) {
+    FILE *tempFile = fopen("temp.txt", "w");
+    if (tempFile == NULL)
+    {
         printf("Erreur: Impossible de créer le fichier temporaire\n");
         fclose(file);
         return;
@@ -94,19 +106,24 @@ void ajouterOuModifierFacture(int referenceAgence, float nouvelleSomme)
     bool found = false;
 
     // Parcourir le fichier ligne par ligne
-    while (fscanf(file, "%d %f", &reference, &somme) == 2) {
-        if (reference == referenceAgence) {
+    while (fscanf(file, "%d %f", &reference, &somme) == 2)
+    {
+        if (reference == referenceAgence)
+        {
             // Modifier la facture
             fprintf(tempFile, "%d %.2f\n", reference, nouvelleSomme);
             found = true;
-        } else {
+        }
+        else
+        {
             // Recopier la facture telle quelle
             fprintf(tempFile, "%d %.2f\n", reference, somme);
         }
     }
 
     // Si la facture n'a pas été trouvée, l'ajouter à la fin du fichier
-    if (!found) {
+    if (!found)
+    {
         fprintf(tempFile, "%d %.2f\n", referenceAgence, nouvelleSomme);
     }
 

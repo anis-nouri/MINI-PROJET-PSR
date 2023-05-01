@@ -12,42 +12,36 @@
 
 #define PORT 8888
 
-
-//mutex pour le controle d'acces aux fichiers au mm temps: synchronisation
-pthread_mutex_t vols_mutex=PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t histo_mutex=PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t facture_mutex=PTHREAD_MUTEX_INITIALIZER;
-
-
-
+// mutex pour le controle d'acces aux fichiers au mm temps: synchronisation
+pthread_mutex_t vols_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t histo_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t facture_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 //*****************************************CODE WITH THREADS&MUTEX******************************
 
-
-//la fonction qui va traiter les demandes des clients et envoyer la réponse aux clients
+// la fonction qui va traiter les demandes des clients et envoyer la réponse aux clients
 void *traitement_demande(void *);
-
 
 int main()
 {
     int socket_desc, client_sock, c;
     struct sockaddr_in server, client;
 
-
     // Créer un socket
     socket_desc = socket(AF_INET, SOCK_STREAM, 0);
-    if (socket_desc == -1) {
+    if (socket_desc == -1)
+    {
         printf("Impossible de créer le socket\n");
         return 1;
     }
-     // Préparer l'adresse du serveur
+    // Préparer l'adresse du serveur
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = INADDR_ANY;
     server.sin_port = htons(PORT);
 
-
     // Associer l'adresse au socket
-    if (bind(socket_desc, (struct sockaddr *)&server, sizeof(server)) < 0) {
+    if (bind(socket_desc, (struct sockaddr *)&server, sizeof(server)) < 0)
+    {
         printf("Erreur de bind\n");
         return 1;
     }
@@ -55,9 +49,9 @@ int main()
     // Mettre le socket en mode écoute-mode passive
     listen(socket_desc, 5);
     printf("En attente de connexions entrantes...\n");
-     // Accepter les connexions entrantes
+    // Accepter les connexions entrantes
     c = sizeof(struct sockaddr_in);
-  while ((client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t *)&c)))
+    while ((client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t *)&c)))
     {
         printf("Connexion acceptée\n");
 
@@ -66,32 +60,29 @@ int main()
         int *new_sock = malloc(1);
         *new_sock = client_sock;
 
-
-        if (pthread_create(&threadServer, NULL, traitement_demande, (void *)new_sock) < 0) {
+        if (pthread_create(&threadServer, NULL, traitement_demande, (void *)new_sock) < 0)
+        {
             printf("Erreur de création de thread\n");
             return 1;
         }
     }
 
-
-    if (client_sock < 0) {
+    if (client_sock < 0)
+    {
         printf("Erreur de connexion avec le client\n");
         return 1;
     }
 
-    //Destruction du mutex
-     pthread_mutex_destroy(&vols_mutex);
-     pthread_mutex_destroy(&facture_mutex);
-     pthread_mutex_destroy(&histo_mutex);
-
-
-    
+    // Destruction du mutex
+    pthread_mutex_destroy(&vols_mutex);
+    pthread_mutex_destroy(&facture_mutex);
+    pthread_mutex_destroy(&histo_mutex);
 
     return 0;
 }
 
-
-void *traitement_demande(void *socket_desc) {
+void *traitement_demande(void *socket_desc)
+{
     int client_sock = *(int *)socket_desc;
     int read_size;
     char client_message[2000];
@@ -99,100 +90,97 @@ void *traitement_demande(void *socket_desc) {
     char transaction_type[20];
     int arg_int;
     int ref_vol, ref_agence, transaction_value;
-    
 
     // Receive data from client
-    while ((read_size = recv(client_sock, client_message, sizeof(client_message), 0)) > 0) {
+    while ((read_size = recv(client_sock, client_message, sizeof(client_message), 0)) > 0)
+    {
         sscanf(client_message, "%[^:]", command);
-        if(strcmp(command,"TRANSACTION")==0){
+        if (strcmp(command, "TRANSACTION") == 0)
+        {
             sscanf(client_message, "%[^:]:%d:%d:%[^:]:%d", command, &ref_vol, &ref_agence, transaction_type, &transaction_value);
         }
-        else{
-            char* colon_pos = strchr(client_message, ':');
+        else
+        {
+            char *colon_pos = strchr(client_message, ':');
 
-
-            if (colon_pos != NULL) {
+            if (colon_pos != NULL)
+            {
                 // Extract the string after ':'
-                char* arg = colon_pos + 1;
-
+                char *arg = colon_pos + 1;
 
                 // Convert the argument to an integer
                 arg_int = atoi(arg);
             }
         }
 
-
-        if (strcmp(command, "REF_AGE") == 0) {
-            printf("**CONSULTER_FACTURE_AGE: [ref.age=%d]**\n",arg_int);
+        if (strcmp(command, "REF_AGE") == 0)
+        {
+            printf("Server: Received command REF_AGE. Consulting facture for age %d...\n", arg_int);
             pthread_mutex_lock(&facture_mutex);
             afficher_facture(arg_int);
-            envoyer_facture(client_sock,arg_int);
+            envoyer_facture1(client_sock, arg_int);
             pthread_mutex_unlock(&facture_mutex);
-
-
-
-        } else if (strcmp(command, "LISTE_VOL") == 0) {
+        }
+        else if (strcmp(command, "LISTE_VOL") == 0)
+        {
+            printf("Server: Received command LISTE_VOL. Sending info for vol %d...\n", arg_int);
             pthread_mutex_lock(&vols_mutex);
-            envoyer_info_vol(client_sock,arg_int);
+            envoyer_info_vol(client_sock, arg_int);
             pthread_mutex_unlock(&vols_mutex);
-
-
-
-        } else if (strcmp(command, "HIST_TR") == 0) {
-            printf("**CONSULTER_HISTO_TRANSACTIONS\n");
+        }
+        else if (strcmp(command, "HIST_TR") == 0)
+        {
+            printf("Server: Received command HIST_TR. Sending histo transactions...\n");
             pthread_mutex_lock(&histo_mutex);
             envoyer_histo(client_sock);
             pthread_mutex_unlock(&histo_mutex);
-
-            }else if (strcmp(command, "GET_FAC") == 0) {
-                printf("**CONSULTER_FACTURE_AGE: [ref.age=%d]**\n",arg_int);
-                afficher_facture(arg_int);
-                envoyer_facture2(client_sock,arg_int);
-            }else if (strcmp(command, "TRANSACTION") == 0) {
-            printf("**L'agence %d a effectué une transaction de type %s**\n", ref_agence, transaction_type);
+        }
+        else if (strcmp(command, "GET_FAC") == 0)
+        {
+            printf("Server: Received command GET_FAC. Consulting facture for age %d...\n", arg_int);
+            pthread_mutex_lock(&facture_mutex);
+            afficher_facture(arg_int);
+            envoyer_facture2(client_sock, arg_int);
+            pthread_mutex_unlock(&facture_mutex);
+        }
+        else if (strcmp(command, "TRANSACTION") == 0)
+        {
+            printf("Server: Received command TRANSACTION. Adding transaction for vol %d and agence %d...\n", ref_vol, ref_agence);
             pthread_mutex_lock(&histo_mutex);
-            ajouter_transaction(client_sock,ref_vol,ref_agence, transaction_type,transaction_value);
+            pthread_mutex_lock(&facture_mutex);
+            pthread_mutex_lock(&vols_mutex);
+            ajouter_transaction(client_sock, ref_vol, ref_agence, transaction_type, transaction_value);
+            pthread_mutex_unlock(&vols_mutex);
+            pthread_mutex_unlock(&facture_mutex);
             pthread_mutex_unlock(&histo_mutex);
-
         }
-            else if (strcmp(command, "ALL_VOL") == 0) {
-         pthread_mutex_lock(&vols_mutex);
-         envoyer_liste_vols(client_sock);
-         pthread_mutex_unlock(&vols_mutex);
-
-        }else {
-                printf("Invalid command\n");
-            }
-            
-            // Clear the buffer for the next message
-            memset(client_message, 0, sizeof(client_message));
+        else if (strcmp(command, "ALL_VOL") == 0)
+        {
+            printf("Server: Received command ALL_VOL. Sending list of all vols...\n");
+            pthread_mutex_lock(&vols_mutex);
+            envoyer_liste_vols(client_sock);
+            pthread_mutex_unlock(&vols_mutex);
+        }
+        else
+        {
+            printf("Invalid command\n");
         }
 
+        // Clear the buffer for the next message
+        memset(client_message, 0, sizeof(client_message));
+    }
 
-    if (read_size == 0) {
+    if (read_size == 0)
+    {
         printf("Client deconnecté\n");
-    } else if (read_size == -1) {
+    }
+    else if (read_size == -1)
+    {
         printf("Erreur de réception des données\n");
     }
     close(client_sock);
     // Free the socket pointer
     free(socket_desc);
 
-
     return NULL;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -2,3 +2,10 @@
 1000 1 Demande 2 succes
 1000 1 Annulation 1 succes
 1000 1 Demande 2 succes
+1000 1 Demande 222 impossible
+3000 1 Demande 1 succes
+1000 1 Annulation 1 succes
+2000 1 Annulation 2 impossible
+1000 1 Annulation 1 succes
+1000 1 Annulation 1 succes
+1000 3 Demande 1 succes
