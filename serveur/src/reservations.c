@@ -79,11 +79,25 @@ void ajouter_transaction(int client_sock, int ref_vol, int agence, char* transac
     int nb_places = get_nb_places(ref_vol);
     float prix_place = get_prix_place(ref_vol);
     float prix_facture = afficher_facture(agence);
+    int places_reservees_agence = calculate_seats_used_by_agency(agence, ref_vol);
     float nouveau_prix_facture=0;
     char resultat[20] = "";
-    
-    if(valeur > nb_places && strcmp(transaction, "Demande") == 0) {
+    char message[100]="";
+    char error[100]="";
+
+    if(nb_places!=-1){
+    if(valeur+places_reservees_agence > nb_places && strcmp(transaction, "Demande") == 0) {
         strcpy(resultat, "impossible");
+        snprintf(error, sizeof(error), "Pas assez de places disponibles pour la demande !\n");
+    }
+     else if(places_reservees_agence==0 && strcmp(transaction, "Annulation") == 0) {
+        strcpy(resultat, "impossible");
+        snprintf(error, sizeof(error), "Vous n'avez pas de places réservées pour ce vol");
+    }
+    else if(valeur > places_reservees_agence && strcmp(transaction, "Annulation") == 0) {
+        strcpy(resultat, "impossible");
+        snprintf(error, sizeof(error), "Vous n'avez réservé que %d places pour ce vol", places_reservees_agence);
+
     }
     else if(strcmp(transaction, "Annulation") == 0 || (valeur <= nb_places && strcmp(transaction, "Demande") == 0)) {
         strcpy(resultat, "succes");
@@ -114,17 +128,53 @@ void ajouter_transaction(int client_sock, int ref_vol, int agence, char* transac
 
     fprintf(fp, "%d %d %s %d %s\n", res.ref_vol, res.agence, res.transaction, res.valeur, res.resultat);
     
-        char message[100];
+    fclose(fp);
+
+    }
+
+    else{
+        snprintf(error, sizeof(error), "Le vol avec la référence %d n'a pas été trouvé!\n", ref_vol);
+    }
     if (strcmp(resultat, "succes") == 0) {
         snprintf(message, sizeof(message), "Transaction effectuée avec succès !\n");
     } else {
         snprintf(message, sizeof(message), "Transaction impossible !\n");
     }
 
+    if (strlen(error) > 0) {
+    strcat(message, error);
+    }
+
     write(client_sock, message, strlen(message));
 
-    fclose(fp);
 }
+
+int calculate_seats_used_by_agency(int agence, int ref_vol) {
+    int i;
+    int seats_used=0;
+    FILE* fp;
+    struct reservation res;
+
+    fp = fopen(filename, "r");
+    if (fp == NULL) {
+        printf("Erreur lors de l'ouverture du fichier %s\n", filename);
+        return -1;
+    }
+    while (fscanf(fp, "%d %d %s %d %s", &res.ref_vol, &res.agence, res.transaction, &res.valeur, res.resultat) != EOF) {
+        if (res.agence == agence && res.ref_vol==ref_vol && strcmp(res.resultat, "succes") == 0) {
+            if (strcmp(res.transaction, "Demande") == 0) {
+                seats_used+= res.valeur;
+            }
+            if (strcmp(res.transaction, "Annulation") == 0) {
+                seats_used -= res.valeur;
+            }
+        }
+    }
+
+    fclose(fp);
+    return seats_used;
+}
+
 
 /*
 int main(){

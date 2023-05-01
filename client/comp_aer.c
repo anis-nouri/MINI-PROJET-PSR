@@ -39,11 +39,11 @@ int main() {
     while (choice != 4) {
         
         system("clear"); // clear the screen
-        printf("======= MENU PRINCIPAL =======\n");
+        printf("======= MENU PRINCIPAL =======\n\n");
         printf("1. Consulter la liste des vols\n");
         printf("2. Consulter la facture d'une agence\n");
         printf("3. Consulter l'historique des transactions\n");
-        printf("4. Quitter\n");
+        printf("4. Quitter\n\n");
 
         printf("Votre choix : ");
         scanf("%d", &choice);
@@ -57,13 +57,12 @@ int main() {
         // Traiter la réponse du serveur
         switch (choice) {
             case 1:
-                printf("======= CONSULTER LA LISTE DES VOLS =======\n");
+                printf("======= CONSULTER LA LISTE DES VOLS =======\n\n");
                 printf("Référence du vol : ");
                 scanf("%s", message);
                 strncpy(request,"LISTE_VOL:",sizeof(request));
                 strcat(request,message);  
                 strcat(request, "\r");
-                  printf("\n %s \n",request);     
 
                 // Envoyer la référence au serveur
                 if (send(sock, request, strlen(request), 0) < 0) {
@@ -84,7 +83,7 @@ int main() {
                 break;
 
             case 2:
-                printf("======= CONSULTER LA FACTURE D'UNE AGENCE =======\n");
+                printf("======= CONSULTER LA FACTURE D'UNE AGENCE =======\n\n");
                 // Demander la référence de l'agence
                 printf("Référence de l'agence : ");
                 scanf("%s", message);
@@ -109,7 +108,7 @@ int main() {
                 break;
 
             case 3:
-                printf("======= CONSULTER L'HISTORIQUE DES TRANSACTIONS =======\n");
+                printf("======= CONSULTER L'HISTORIQUE DES TRANSACTIONS =======\n\n");
                 strncpy(request,"HIST_TR:",sizeof(request));
                 strcat(request, "\r");
 

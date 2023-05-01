@@ -29,6 +29,8 @@ int main() {
     int sock;
     struct sockaddr_in server;
     char message[1000], server_reply[2000],request[2000];
+    float fact=0;
+
 
     int choice = 0, option=0;
     int transaction_value = 0,ref_vol=0;
@@ -55,14 +57,13 @@ int main() {
     
 
     // Menu
-    while (choice != 4) {
+    while (choice != 3) {
         
         system("clear"); // clear the screen
         printf("======= MENU PRINCIPAL =======\n\n");
         printf("1. Réaliser des transactions\n");
-        printf("2. Consulter la facture d'une agence\n");
-        printf("3. Consulter l'historique des transactions\n");
-        printf("4. Quitter\n\n");
+        printf("2. Consulter la facture\n");
+        printf("3. Quitter\n\n");
 
         printf("Votre choix : ");
         scanf("%d", &choice);
@@ -136,10 +137,38 @@ int main() {
                             printf("\nRESULTAT DE LA TRANSACTION ==> %s\n", server_reply);
                             break;
                         case 2:
-                            printf("Entrez le nombre de places à annuler: ");
-                            scanf("%d", &transaction_value);
+                             // Demander une réservation
+                            printf("======= Effectuer une annulation de réservation =======\n");
+                            // Préparer la requête pour obtenir la liste des vols disponibles
+                            sprintf(request, "ALL_VOL:1");
+                            strcat(request, "\r");     
+                            
+                            // Envoyer la requête et attendre la réponse
+                            send_request(sock, request, server_reply);
+                            
+                            // Afficher la liste des vols disponibles
+                            printf("%s",server_reply);
+                            
+                            // Vider la mémoire tampon pour stocker la réponse du serveur
+                            memset(server_reply, 0, sizeof(server_reply));
+                            
+                            // Demander le numéro de vol et le nombre de places demandées
+                            printf("\nEntrez le numéro du vol: ");
+                            scanf("%d", &ref_vol);
 
-                            // code to handle reservation cancellation with transaction_value
+                            printf("Entrez le nombre de places à annulées: ");
+                            scanf("%d", &transaction_value);
+                            
+                            // Préparer la requête pour effectuer la transaction
+                            sprintf(request, "TRANSACTION:%d:%d:%s:%d", ref_vol,REF_AG, "Annulation", transaction_value);
+                            strcat(request, "\r");     
+                            
+                            // Envoyer la requête et attendre la réponse
+                            send_request(sock, request, server_reply);
+                            
+                            // Afficher le résultat de la transaction
+                            printf("\nRESULTAT DE LA TRANSACTION ==> %s\n", server_reply);
+
                             break;
                         case 3:
                             // Préparer la requête pour obtenir la facture finale
@@ -168,20 +197,36 @@ int main() {
                     if (option != 3) {
                     printf("Appuyez sur une touche pour continuer...\n");
                     getchar();
-                    getchar();
-        }
+                    getchar();}
 
                 }
+            break;
 
-            case 4:
-                // Quitter
+            case 2:
+                system("clear"); // clear the screen again
+                sprintf(request, "GET_FAC:%d",REF_AG);
+                strcat(request, "\r"); 
+
+                // Envoyer la requête et attendre la réponse
+                send_request(sock, request, server_reply);
+
+                // Récupérer la facture finale et afficher le résultat de la transaction
+                fact = atof(server_reply);
+
+                printf("\n==================================================\n");
+                printf("                 FACTURE FINALE\n");
+                printf("==================================================\n");
+                printf(" Le montant de votre facture est : %.2f\n", fact);
+                printf("==================================================\n\n");
+                break;
+            case 3:
                 break;
 
             default:
                 printf("Choix invalide\n");
                 break;
         }
-        if (choice != 4) {
+        if (choice != 3) {
             printf("Appuyez sur une touche pour continuer...\n");
             getchar();
             getchar();
