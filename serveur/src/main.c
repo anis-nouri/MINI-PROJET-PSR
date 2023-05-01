@@ -71,7 +71,7 @@ int main() {
             if (strcmp(command, "REF_AGE") == 0) {
                 printf("**CONSULTER_FACTURE_AGE: [ref.age=%d]**\n",arg_int);
                 afficher_facture(arg_int);
-                envoyer_facture(client_sock,arg_int);
+                envoyer_facture1(client_sock,arg_int);
 
             } else if (strcmp(command, "LISTE_VOL") == 0) {
                 envoyer_info_vol(client_sock,arg_int);
@@ -79,6 +79,12 @@ int main() {
             } else if (strcmp(command, "HIST_TR") == 0) {
                 printf("**CONSULTER_HISTO_TRANSACTIONS\n");
                 envoyer_histo(client_sock);
+
+            }
+            else if (strcmp(command, "GET_FAC") == 0) {
+                printf("**CONSULTER_FACTURE_AGE: [ref.age=%d]**\n",arg_int);
+                afficher_facture(arg_int);
+                envoyer_facture2(client_sock,arg_int);
 
             }else if (strcmp(command, "TRANSACTION") == 0) {
                 printf("**L'agence %d a effectué une transaction de type %s**\n", ref_agence, transaction_type);

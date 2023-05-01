@@ -26,7 +26,28 @@ float afficher_facture(int ref_agence) {
     rewind(fp);
 }
 
-void envoyer_facture(int client_sock, int ref_agence) {
+void envoyer_facture2(int client_socket, int ref_agence) {
+    FILE* fp;
+    fp = fopen(filename, "r");
+    facture f;
+    int trouve = 0;
+    while (fscanf(fp, "%d %f", &f.ref_agence, &f.somme_a_payer) == 2) {
+        if (f.ref_agence == ref_agence) {
+            trouve = 1;
+            char invoice_str[50];
+            sprintf(invoice_str, "%.2f", f.somme_a_payer);
+            write(client_socket, invoice_str, strlen(invoice_str));
+            break;
+        }
+    }
+    if (!trouve) {
+        char error_msg[] = "ERREUR: Facture introuvable";
+        write(client_socket, error_msg, strlen(error_msg));
+    }
+    rewind(fp);
+}
+
+void envoyer_facture1(int client_sock, int ref_agence) {
     FILE* fp;
     fp = fopen(filename, "r");
     if (fp == NULL) {

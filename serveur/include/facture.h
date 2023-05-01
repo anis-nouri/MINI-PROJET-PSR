@@ -11,7 +11,7 @@ typedef struct {
 
 float afficher_facture(int);
 void ajouterOuModifierFacture(int, float);
-void envoyer_facture(int client_sock, int ref_agence);
-
+void envoyer_facture1(int client_sock, int ref_agence);
+void envoyer_facture2(int client_sock, int ref_agence);
 
 #endif

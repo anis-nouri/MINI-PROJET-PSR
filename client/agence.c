@@ -9,10 +9,27 @@
 #define PORT 8888
 #define REF_AG 1
 
+
+void send_request(int sock, const char* request, char* response) {
+    // Send the request to the server
+    if (send(sock, request, strlen(request), 0) < 0) {
+        printf("Erreur lors de l'envoi des données\n");
+        return;
+    }
+
+    // Wait for a response from the server
+    if (recv(sock, response, 2000, 0) < 0) {
+        printf("Erreur lors de la réception des données\n");
+        return;
+    }
+}
+
+
 int main() {
     int sock;
     struct sockaddr_in server;
-    char message[1000], server_reply[2000], request[100];
+    char message[1000], server_reply[2000],request[2000];
+
     int choice = 0, option=0;
     int transaction_value = 0,ref_vol=0;
 
@@ -41,11 +58,11 @@ int main() {
     while (choice != 4) {
         
         system("clear"); // clear the screen
-        printf("======= MENU PRINCIPAL =======\n");
+        printf("======= MENU PRINCIPAL =======\n\n");
         printf("1. Réaliser des transactions\n");
         printf("2. Consulter la facture d'une agence\n");
         printf("3. Consulter l'historique des transactions\n");
-        printf("4. Quitter\n");
+        printf("4. Quitter\n\n");
 
         printf("Votre choix : ");
         scanf("%d", &choice);
@@ -60,12 +77,24 @@ int main() {
         switch (choice) {
             case 1:
                 option =0;
+                float fact_init;
+                float fact_fin;
+
+                // Préparer la requête pour obtenir la liste des vols disponibles
+                sprintf(request, "GET_FAC:%d",REF_AG);
+                strcat(request, "\r"); 
+
+                 // Envoyer la requête et attendre la réponse
+                send_request(sock, request, server_reply);
+
+                fact_init=atof(server_reply);
+               
                 while (option != 3) {
                     system("clear"); // clear the screen again
-                    printf("======= Réaliser des transactions =======\n");
+                    printf("======= Réaliser des transactions =======\n\n");
                     printf("1. Effectuer une demande de réservation\n");
                     printf("2. Annuler une réservation\n");
-                    printf("3. Retourner au menu principal\n");
+                    printf("3. Retourner au menu principal\n\n");
                     printf("Entrez votre choix: ");
                     scanf("%d", &option);
                     system("clear");
@@ -73,57 +102,38 @@ int main() {
                      bzero(server_reply, sizeof(server_reply));
                     switch (option) {
                         case 1:
+                            // Demander une réservation
                             printf("======= Effectuer une demande de réservation =======\n");
-                            char request[2000];
+                            
+                            // Préparer la requête pour obtenir la liste des vols disponibles
                             sprintf(request, "ALL_VOL:1");
                             strcat(request, "\r");     
-
-                             // Send the request to the server
-                            if (send(sock, request, strlen(request), 0) < 0) {
-                                printf("Erreur lors de l'envoi des données\n");
-                                return 1;
-                            }
-
-                            // Recevoir la facture correspondante
                             
-                            if (recv(sock, server_reply, 2000, 0) < 0) {
-                                printf("Erreur lors de la réception des données\n");
-                                return 1;
-                            }
-
-
-                            // Afficher la liste des vols
+                            // Envoyer la requête et attendre la réponse
+                            send_request(sock, request, server_reply);
+                            
+                            // Afficher la liste des vols disponibles
                             printf("%s",server_reply);
+                            
+                            // Vider la mémoire tampon pour stocker la réponse du serveur
                             memset(server_reply, 0, sizeof(server_reply));
                             
+                            // Demander le numéro de vol et le nombre de places demandées
                             printf("\nEntrez le numéro du vol: ");
                             scanf("%d", &ref_vol);
 
                             printf("Entrez le nombre de places demandées: ");
                             scanf("%d", &transaction_value);
-
                             
+                            // Préparer la requête pour effectuer la transaction
                             sprintf(request, "TRANSACTION:%d:%d:%s:%d", ref_vol,REF_AG, "Demande", transaction_value);
                             strcat(request, "\r");     
-
-                            // Send the request to the server
-                            if (send(sock, request, strlen(request), 0) < 0) {
-                                printf("Erreur lors de l'envoi des données\n");
-                                return 1;
-                            }
-
-                            // Recevoir la facture correspondante
                             
-                            if (recv(sock, server_reply, 2000, 0) < 0) {
-                                printf("Erreur lors de la réception des données\n");
-                                return 1;
-                            }
-
-
-                            // Afficher la liste des vols
+                            // Envoyer la requête et attendre la réponse
+                            send_request(sock, request, server_reply);
+                            
+                            // Afficher le résultat de la transaction
                             printf("\nRESULTAT DE LA TRANSACTION ==> %s\n", server_reply);
-                            
-
                             break;
                         case 2:
                             printf("Entrez le nombre de places à annuler: ");
@@ -132,6 +142,23 @@ int main() {
                             // code to handle reservation cancellation with transaction_value
                             break;
                         case 3:
+                            // Préparer la requête pour obtenir la facture finale
+                            sprintf(request, "GET_FAC:%d",REF_AG);
+                            strcat(request, "\r"); 
+
+                            // Envoyer la requête et attendre la réponse
+                            send_request(sock, request, server_reply);
+
+                            // Récupérer la facture finale et afficher le résultat de la transaction
+                            fact_fin = atof(server_reply);
+                            float transaction_value = fact_fin - fact_init;
+                            printf("\n==================================================\n");
+                            printf("                 RÉSULTAT DE LA TRANSACTION\n");
+                            printf("==================================================\n");
+                            printf(" La valeur des transactions effectuées est : %.2f\n", transaction_value);
+                            printf("==================================================\n\n");
+
+                            // Afficher un message de confirmation et retourner au menu principal
                             printf("Retour au menu principal.\n");
                             break;
                         default:
